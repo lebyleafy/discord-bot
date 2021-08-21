@@ -265,15 +265,6 @@ async def redi(ctx, arg):
     embed.set_image(url=a)
     await ctx.send(embed=embed)
 
-
-#leafy picture
-@commands.command()
-async def leafy(ctx):
-    with open('leafy.png', 'rb') as f:
-        picture = discord.File(f)
-        await ctx.send(file=picture)
-
-
 #tell quote
 @commands.command()
 async def quote(ctx):
