@@ -12,6 +12,7 @@ commands = commands.Bot(command_prefix=commands.when_mentioned_or("rba."),
                         intents=intents)
 commands.remove_command("help")
 
+
 #help
 @commands.command()
 async def help(ctx):
@@ -148,7 +149,7 @@ async def help(ctx):
         color=discord.Colour.green())
     page8.add_field(name="rba.redi <value>",
                     value="``it send picture from reddit.``")
-    
+
     page8.set_footer(text="8/8")
 
     pages = [page1, page2, page3, page4, page5, page6, page7, page8]
@@ -191,49 +192,53 @@ async def help(ctx):
 
     await message.clear_reactions()
 
+
 with open("users.json", "ab+") as ab:
     ab.close()
-    f = open('users.json','r+')
+    f = open('users.json', 'r+')
     f.readline()
     if os.stat("users.json").st_size == 0:
-      f.write("{}")
-      f.close()
+        f.write("{}")
+        f.close()
     else:
-      pass
- 
+        pass
+
 with open('users.json', 'r') as f:
-  users = json.load(f)
- 
+    users = json.load(f)
+
 
 async def add_experience(users, user):
-  if not f'{user.id}' in users:
+    if not f'{user.id}' in users:
         users[f'{user.id}'] = {}
         users[f'{user.id}']['experience'] = 0
         users[f'{user.id}']['level'] = 0
-  users[f'{user.id}']['experience'] += 3
+    users[f'{user.id}']['experience'] += 3
 
- 
+
 async def level_up(users, user, message):
-  experience = users[f'{user.id}']["experience"]
-  lvl_start = users[f'{user.id}']["level"]
-  lvl_end = int(experience ** (1 / 4))
-  if lvl_start < lvl_end:
-    await message.channel.send(f':tada: {user.mention} has reached level {lvl_end}. Congrats! :tada:')
-    users[f'{user.id}']["level"] = lvl_end
- 
-@commands.command(name='rank', aliases=['lvl','levels','level'])
+    experience = users[f'{user.id}']["experience"]
+    lvl_start = users[f'{user.id}']["level"]
+    lvl_end = int(experience**(1 / 4))
+    if lvl_start < lvl_end:
+        await message.channel.send(
+            f':tada: {user.mention} has reached level {lvl_end}. Congrats! :tada:'
+        )
+        users[f'{user.id}']["level"] = lvl_end
+
+
+@commands.command(name='rank', aliases=['lvl', 'levels', 'level'])
 async def rank(ctx, member: discord.Member = None):
-  if member == None:
-    userlvl = users[f'{ctx.author.id}']['level']
-    await ctx.send(f'{ctx.author.mention} You are at level {userlvl}!')
-  else:
-    userlvl2 = users[f'{member.id}']['level']
-    await ctx.send(f'{member.mention} is at level {userlvl2}!')
+    if member == None:
+        userlvl = users[f'{ctx.author.id}']['level']
+        await ctx.send(f'{ctx.author.mention} You are at level {userlvl}!')
+    else:
+        userlvl2 = users[f'{member.id}']['level']
+        await ctx.send(f'{member.mention} is at level {userlvl2}!')
 
 
 @commands.event
 async def on_message(message):
-    
+
     msg = message.content
     if message.author == commands.user:
         return
@@ -264,7 +269,6 @@ async def on_message(message):
         with open('users.json', 'w') as f:
             json.dump(users, f)
 
-
     await commands.process_commands(message)
 
 
@@ -278,7 +282,6 @@ async def on_ready():
     commands.load_extension("music")
     commands.load_extension("joinandleave")
     commands.load_extension("cool_feature")
-
 
 
 keep_alive()
