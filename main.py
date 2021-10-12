@@ -1,27 +1,16 @@
 import discord
 import os
-import requests
-import json
 import random
-import pyjokes
 from online import keep_alive
-import wolframalpha
 from discord.ext import commands
-import wikipedia
-from PyDictionary import PyDictionary
 import reply_bot
-import praw
-from translate import Translator
-
-
+import asyncio
+import json
 #create bot
 intents = discord.Intents().all()
-commands = commands.Bot(command_prefix=commands.when_mentioned_or("rba."), intents=intents)
+commands = commands.Bot(command_prefix=commands.when_mentioned_or("rba."),
+                        intents=intents)
 commands.remove_command("help")
-reddit = praw.Reddit(client_id='6KPuXtvipyTjhA',
-                     client_secret='gDP_UibkLFxRlAJ2fcXgnehpIKXyzA',
-                     user_agent='leafyBOT')
-
 
 #help
 @commands.command()
@@ -31,7 +20,9 @@ async def help(ctx):
         description=
         "***All the commands are here, if you have any question [click here](https://shrekis.life/WEHAIV)***",
         color=discord.Colour.orange())
-    page1.set_thumbnail(url="https://acegif.com/wp-content/uploads/2020/b72nv6/partyparrt-24.gif")
+    page1.set_thumbnail(
+        url=
+        "https://acegif.com/wp-content/uploads/2020/b72nv6/partyparrt-24.gif")
     page1.add_field(
         name="Fun :smile:",
         value="``joke, memes, quote, leafy's quote, 'rock,paper,scissors'``")
@@ -42,11 +33,9 @@ async def help(ctx):
                     value='``say "hi", "bye", "how are you?"``')
     page1.add_field(name="Reply :busts_in_silhouette: ",
                     value="``stupid leafy hasn't add it yet.``")
-    page1.add_field(
-        name="Music :musical_note:",
-        value="``plays music from youtube``")
-    page1.add_field(name="Image :frame_photo:",
-                    value="``reddit picture``")
+    page1.add_field(name="Music :musical_note:",
+                    value="``plays music from youtube``")
+    page1.add_field(name="Image :frame_photo:", value="``reddit picture``")
     page1.set_footer(text="1/8")
 
     #Fun
@@ -66,7 +55,8 @@ async def help(ctx):
     )
     page2.add_field(
         name="rba.rps :fist: :v: :raised_hand: ",
-        value="``rba.rps <rock, paper, scissors,> to play rock-paper-scissors``")
+        value="``rba.rps <rock, paper, scissors,> to play rock-paper-scissors``"
+    )
     page2.set_footer(text="2/8")
 
     #Annoying
@@ -76,8 +66,8 @@ async def help(ctx):
         color=discord.Colour.orange())
     page3.add_field(
         name="rba.spam <number><value>",
-        value=
-        "``Don't overuse this thing, it spams @everyone on your demand.``")
+        value="``Don't overuse this thing, it spams @everyone on your demand.``"
+    )
     page3.add_field(name="rba.roast <@'name'>",
                     value="``use this to roast your friend``")
     page3.set_footer(text="3/8")
@@ -94,11 +84,12 @@ async def help(ctx):
     )
     page4.add_field(
         name="rba.wiki :grey_question:",
-        value="``rba.wiki <keywords>, it gives you information form wikipedia.``")
+        value=
+        "``rba.wiki <keywords>, it gives you information form wikipedia.``")
     page4.add_field(
         name="rba.dict :book:",
-        value="``rba.dict <keywords>, it gives you information about that word.``"
-    )
+        value=
+        "``rba.dict <keywords>, it gives you information about that word.``")
     page4.add_field(
         name="rba.urb :city_dusk:",
         value=
@@ -128,19 +119,14 @@ async def help(ctx):
                     value="``bot join the voicechat channel you are in``")
     page6.add_field(name='rba.play <name> or <link>',
                     value="``to play music from youtube``")
-    page6.add_field(name='rba.skip',
-                    value='``skips the current song``')
-    page6.add_field(name='rba.pause',
-                    value="``pauses the song``")
-    page6.add_field(name='rba.resume',
-                    value="``resume the song``")
+    page6.add_field(name='rba.skip', value='``skips the current song``')
+    page6.add_field(name='rba.pause', value="``pauses the song``")
+    page6.add_field(name='rba.resume', value="``resume the song``")
     page6.add_field(name='rba.queue or rba.playlist',
                     value="``shows the play list``")
-    page6.add_field(name='rba.np',
-                    value="``shows the current song``")
-    page6.add_field(name='rba.leave',
-                    value="``bot leaves the channel``")
-    
+    page6.add_field(name='rba.np', value="``shows the current song``")
+    page6.add_field(name='rba.leave', value="``bot leaves the channel``")
+
     page6.set_footer(text="6/8")
 
     #Reply
@@ -162,8 +148,7 @@ async def help(ctx):
         color=discord.Colour.green())
     page8.add_field(name="rba.redi <value>",
                     value="``it send picture from reddit.``")
-    page8.add_field(name="rba.leafy",
-                    value="``send leafy picture when he goes leafy mode``")
+    
     page8.set_footer(text="8/8")
 
     pages = [page1, page2, page3, page4, page5, page6, page7, page8]
@@ -198,155 +183,57 @@ async def help(ctx):
 
         try:
             reaction, user = await commands.wait_for('reaction_add',
-                                                   timeout=60.0,
-                                                   check=check)
+                                                     timeout=60.0,
+                                                     check=check)
             await message.remove_reaction(reaction, user)
         except:
             break
 
     await message.clear_reactions()
 
-
-#rock paper scissors
-@commands.command()
-async def rps(ctx, arg):
-    possible_actions = ["rock", "paper", "scissors"]
-    computer_action = random.choice(possible_actions)
-    if arg in possible_actions:
-        await ctx.send(f"\nYou chose {arg}, leafy chose {computer_action}.\n")
-        if arg == computer_action:
-            await ctx.send(f"Both players selected {arg}. It's a tie!")
-        elif arg == "rock":
-            if computer_action == "scissors":
-                await ctx.send("Rock smashes scissors! You just fucky man.")
-            else:
-                await ctx.send("Paper covers rock! hahaha noov.")
-        elif arg == "paper":
-            if computer_action == "rock":
-                await ctx.send(
-                    "Paper covers rock! WHAT? there is no next time doe")
-            else:
-                await ctx.send("Scissors cuts paper! My name is nt.")
-        elif arg == "scissors":
-            if computer_action == "paper":
-                await ctx.send(
-                    "Scissors cuts paper! What the fuck how could you win me?")
-            else:
-                await ctx.send(
-                    "Rock smashes scissors! Haha u just can't beat me NOOB.")
+with open("users.json", "ab+") as ab:
+    ab.close()
+    f = open('users.json','r+')
+    f.readline()
+    if os.stat("users.json").st_size == 0:
+      f.write("{}")
+      f.close()
     else:
-        await ctx.send("dude thats wrong syntax, fucking dumbass")
+      pass
+ 
+with open('users.json', 'r') as f:
+  users = json.load(f)
+ 
 
+async def add_experience(users, user):
+  if not f'{user.id}' in users:
+        users[f'{user.id}'] = {}
+        users[f'{user.id}']['experience'] = 0
+        users[f'{user.id}']['level'] = 0
+  users[f'{user.id}']['experience'] += 3
 
-#meme form reddit
-@commands.command()
-async def meme(ctx):
-    memes_submissions = reddit.subreddit('memes').hot()
-    post_to_pick = random.randint(1, 100)
-    for i in range(0, post_to_pick):
-        submission = next(x for x in memes_submissions if not x.stickied)
-        a = submission.url
-        b = submission.title
-    embed = discord.Embed(title=b, color=0x2B59B)
-    embed.set_image(url=a)
-    await ctx.send(embed=embed)
-
-
-#reddit image
-@commands.command()
-async def redi(ctx, arg):
-    memes_submissions = reddit.subreddit(str(arg)).hot()
-    post_to_pick = random.randint(1, 100)
-    for i in range(0, post_to_pick):
-        submission = next(x for x in memes_submissions if not x.stickied)
-        a = submission.url
-        b = submission.title
-    embed = discord.Embed(title=b, color=0xE38F8F)
-    embed.set_image(url=a)
-    await ctx.send(embed=embed)
-
-#tell quote
-@commands.command()
-async def quote(ctx):
-    response = requests.get("https://zenquotes.io/api/random")
-    json_data = json.loads(response.text)
-    quote = json_data[0]['q'] + " -" +"**"+ json_data[0]['a'] +"**" 
-    await ctx.send(quote)
-
-
-#tell joke
-@commands.command()
-async def joke(ctx):
-    joke = (pyjokes.get_joke())
-    await ctx.send(joke)
-
-
-#roast
-@commands.command()
-async def roast(ctx, arg):
-    await ctx.send(
-        f"{arg} {random.choice(reply_bot.roast_ppl)}  -**{ctx.author.name}**")
-
-@commands.command()
-async def praise(ctx):
-  await ctx.send(random.choice(reply_bot.praise))
-
-
-#spam
-@commands.command()
-async def spam(ctx, arg1, *arg2):
-    a = ' '.join(arg2)
-    num = int(arg1)
-    if num <= 5:
-        for i in range(0, num):
-            await ctx.send(str(a))
-    elif num > 5:
-        await ctx.send("haha no, you not gonna overload me XD")
-        await ctx.send("leafy is not that dumb lol, btw maximum is 5 times")
-    else: 
-      await ctx.send("wrong syntax, stupid")
-
-
-#wolframalpha wiki
-@commands.command()
-async def asks(ctx, *arg):
-    a = ' '.join(arg)
-    app_id = 'T8TJE5-6V67WHUAHT'
-    client = wolframalpha.Client(app_id)
-    res = client.query(a)
-    answer = next(res.results).text
-    await ctx.send(answer)
-
-
-#wikipedia
-@commands.command()
-async def wiki(ctx, arg):
-    a = ("```" + (wikipedia.summary((arg), sentences=5)) + "```")
-    await ctx.send(a)
-
-
-#dictionary
-@commands.command()
-async def dict(ctx, arg):
-    dictionary = PyDictionary()
-    await ctx.send(dictionary.meaning(arg))
-
-
-@commands.command()
-async def leafy_quote(ctx):
-    await ctx.send(random.choice(reply_bot.leafyquote) + "** -leafy**")
-
-
-@commands.command()
-async def trans(ctx, lan1, lan2, *text):
-    a = ' '.join(text)
-    translator = Translator(from_lang=lan1, to_lang=lan2)
-    translation = translator.translate(a)
-    await ctx.send(translation)
+ 
+async def level_up(users, user, message):
+  experience = users[f'{user.id}']["experience"]
+  lvl_start = users[f'{user.id}']["level"]
+  lvl_end = int(experience ** (1 / 4))
+  if lvl_start < lvl_end:
+    await message.channel.send(f':tada: {user.mention} has reached level {lvl_end}. Congrats! :tada:')
+    users[f'{user.id}']["level"] = lvl_end
+ 
+@commands.command(name='rank', aliases=['lvl','levels','level'])
+async def rank(ctx, member: discord.Member = None):
+  if member == None:
+    userlvl = users[f'{ctx.author.id}']['level']
+    await ctx.send(f'{ctx.author.mention} You are at level {userlvl}!')
+  else:
+    userlvl2 = users[f'{member.id}']['level']
+    await ctx.send(f'{member.mention} is at level {userlvl2}!')
 
 
 @commands.event
 async def on_message(message):
+    
     msg = message.content
     if message.author == commands.user:
         return
@@ -368,7 +255,15 @@ async def on_message(message):
     if msg in reply_bot.who_is_leafy:
         await message.channel.send(random.choice(reply_bot.who_is_leafy_reply))
     if msg in reply_bot.stfu:
-      await message.channel.send(random.choice(reply_bot.stfu_reply))
+        await message.channel.send(random.choice(reply_bot.stfu_reply))
+    if message.author.bot == False:
+        with open('users.json', 'r') as f:
+            users = json.load(f)
+        await add_experience(users, message.author)
+        await level_up(users, message.author, message)
+        with open('users.json', 'w') as f:
+            json.dump(users, f)
+
 
     await commands.process_commands(message)
 
@@ -377,9 +272,13 @@ async def on_message(message):
 @commands.event
 async def on_ready():
     print('We have logged in as {0.user}'.format(commands))
-    await commands.change_presence(status=discord.Status.idle,activity=discord.Game(name="UR MOM | rba.help"))
+    await commands.change_presence(
+        status=discord.Status.idle,
+        activity=discord.Game(name="UR MOM | rba.help"))
     commands.load_extension("music")
-   
+    commands.load_extension("joinandleave")
+    commands.load_extension("cool_feature")
+
 
 
 keep_alive()
