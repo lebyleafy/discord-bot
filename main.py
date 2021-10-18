@@ -6,11 +6,19 @@ from discord.ext import commands
 import reply_bot
 import asyncio
 import json
+import math
+
 #create bot
 intents = discord.Intents().all()
+intents.members = True
 commands = commands.Bot(command_prefix=commands.when_mentioned_or("rba."),
-                        intents=intents)
-commands.remove_command("help")
+                        intents=intents,
+                        help_command=None)
+
+initial_extensions = [
+    'cogs.music', 'cogs.cool_feature', 'cogs.joinandleave',
+    'cogs.userinformation'
+]
 
 
 #help
@@ -26,17 +34,21 @@ async def help(ctx):
         "https://acegif.com/wp-content/uploads/2020/b72nv6/partyparrt-24.gif")
     page1.add_field(
         name="Fun :smile:",
-        value="``joke, memes, quote, leafy's quote, 'rock,paper,scissors'``")
+        value=
+        "``joke, memes, quote, leafy's quote, 'rock,paper,scissors','social credits'``"
+    )
     page1.add_field(name="Annoying :face_with_symbols_over_mouth:",
                     value="``spam, roast``")
-    page1.add_field(name="Wiki :thinking:", value="``asks, wiki, urb, dict``")
+    page1.add_field(name="Wiki :thinking:",
+                    value="``asks, wiki, urb, dict, morse code encoder``")
     page1.add_field(name="Chat :speech_balloon:",
                     value='``say "hi", "bye", "how are you?"``')
     page1.add_field(name="Reply :busts_in_silhouette: ",
                     value="``stupid leafy hasn't add it yet.``")
     page1.add_field(name="Music :musical_note:",
                     value="``plays music from youtube``")
-    page1.add_field(name="Image :frame_photo:", value="``reddit picture``")
+    page1.add_field(name="Image :frame_photo:",
+                    value="``reddit picture, QR code generator``")
     page1.set_footer(text="1/8")
 
     #Fun
@@ -51,13 +63,13 @@ async def help(ctx):
     page2.add_field(name="rba.meme :ok_hand:", value="`send random memes.`")
     page2.add_field(
         name="rba.leafy_quote :leaves:",
-        value=
-        "``bot tells quote from the smartest person in this server with extreme CS:GO skill, btw he's the best programmer tho.``"
-    )
+        value="``my quote that i stole on the internet and made it mine``")
     page2.add_field(
         name="rba.rps :fist: :v: :raised_hand: ",
         value="``rba.rps <rock, paper, scissors,> to play rock-paper-scissors``"
     )
+    page2.add_field(name="rba.rank 🆙",
+                    value="``to see your social credits you have``")
     page2.set_footer(text="2/8")
 
     #Annoying
@@ -96,6 +108,11 @@ async def help(ctx):
         value=
         "``rba.urb <keywords>, it gives you information about that word from urban dictionary.``"
     )
+    page4.add_field(
+        name="rba.encrypt or rba.decrypt 💻",
+        value=
+        "``rba.encrypt <keywords>, convert string to morse. rba.decrypt <morse code> convert morse to string``"
+    )
     page4.set_footer(text="4/8")
 
     #Chat
@@ -120,13 +137,15 @@ async def help(ctx):
                     value="``bot join the voicechat channel you are in``")
     page6.add_field(name='rba.play <name> or <link>',
                     value="``to play music from youtube``")
-    page6.add_field(name='rba.skip', value='``skips the current song``')
+    page6.add_field(name='rba.skip [s]', value='``skips the current song``')
     page6.add_field(name='rba.pause', value="``pauses the song``")
     page6.add_field(name='rba.resume', value="``resume the song``")
-    page6.add_field(name='rba.queue or rba.playlist',
+    page6.add_field(name='rba.queue [q, playlist]',
                     value="``shows the play list``")
-    page6.add_field(name='rba.np', value="``shows the current song``")
-    page6.add_field(name='rba.leave', value="``bot leaves the channel``")
+    page6.add_field(name='rba.now_playing [np, current, currentsong, playing]',
+                    value="``shows the current song``")
+    page6.add_field(name='rba.leave[dc, bye]',
+                    value="``bot leaves the channel``")
 
     page6.set_footer(text="6/8")
 
@@ -149,12 +168,15 @@ async def help(ctx):
         color=discord.Colour.green())
     page8.add_field(name="rba.redi <value>",
                     value="``it send picture from reddit.``")
+    page8.add_field(name="rba.qr or QR <value>", value="``create QR code.``")
 
     page8.set_footer(text="8/8")
 
     pages = [page1, page2, page3, page4, page5, page6, page7, page8]
-
-    message = await ctx.send(embed=page1)
+    if isinstance(ctx.channel, discord.channel.DMChannel):
+        pass
+    else:
+        message = await ctx.send(embed=page1)
     await message.add_reaction('⏮')
     await message.add_reaction('◀')
     await message.add_reaction('▶')
@@ -193,6 +215,55 @@ async def help(ctx):
     await message.clear_reactions()
 
 
+#member
+@commands.command()
+async def members(ctx):
+    members = [str(m) for m in ctx.guild.members]
+    per_page = 10  # 10 members per page
+    pages = math.ceil(len(members) / per_page)
+    cur_page = 1
+    chunk = members[:per_page]
+    linebreak = "\n"
+    message = await ctx.send(
+        f"```Page {cur_page}/{pages}:\n{linebreak.join(chunk)}```")
+    await message.add_reaction("◀️")
+    await message.add_reaction("▶️")
+    active = True
+
+    def check(reaction, user):
+        return user == ctx.author and str(reaction.emoji) in ["◀️", "▶️"]
+        # or you can use unicodes, respectively: "\u25c0" or "\u25b6"
+
+    while active:
+        try:
+            reaction, user = await commands.wait_for("reaction_add",
+                                                     timeout=60,
+                                                     check=check)
+
+            if str(reaction.emoji) == "▶️" and cur_page != pages:
+                cur_page += 1
+                if cur_page != pages:
+                    chunk = members[(cur_page - 1) * per_page:cur_page *
+                                    per_page]
+                else:
+                    chunk = members[(cur_page - 1) * per_page:]
+                await message.edit(
+                    content=
+                    f"```Page {cur_page}/{pages}:\n{linebreak.join(chunk)}```")
+                await message.remove_reaction(reaction, user)
+
+            elif str(reaction.emoji) == "◀️" and cur_page > 1:
+                cur_page -= 1
+                chunk = members[(cur_page - 1) * per_page:cur_page * per_page]
+                await message.edit(
+                    content=
+                    f"```Page {cur_page}/{pages}:\n{linebreak.join(chunk)}```")
+                await message.remove_reaction(reaction, user)
+        except asyncio.TimeoutError:
+            await message.delete()
+            active = False
+
+
 with open("users.json", "ab+") as ab:
     ab.close()
     f = open('users.json', 'r+')
@@ -212,7 +283,7 @@ async def add_experience(users, user):
         users[f'{user.id}'] = {}
         users[f'{user.id}']['experience'] = 0
         users[f'{user.id}']['level'] = 0
-    users[f'{user.id}']['experience'] += 3
+    users[f'{user.id}']['experience'] += 4
 
 
 async def level_up(users, user, message):
@@ -221,28 +292,25 @@ async def level_up(users, user, message):
     lvl_end = int(experience**(1 / 4))
     if lvl_start < lvl_end:
         await message.channel.send(
-            f':tada: {user.mention} has reached level {lvl_end}. Congrats! :tada:'
+            f':tada: {user.mention} has earned total of {lvl_end} social credits. Congrats! :tada:'
         )
         users[f'{user.id}']["level"] = lvl_end
-
-
-@commands.command(name='rank', aliases=['lvl', 'levels', 'level'])
-async def rank(ctx, member: discord.Member = None):
-    if member == None:
-        userlvl = users[f'{ctx.author.id}']['level']
-        await ctx.send(f'{ctx.author.mention} You are at level {userlvl}!')
-    else:
-        userlvl2 = users[f'{member.id}']['level']
-        await ctx.send(f'{member.mention} is at level {userlvl2}!')
 
 
 @commands.event
 async def on_message(message):
 
     msg = message.content
+
     if message.author == commands.user:
         return
-    if message.author.bot: return
+    if message.author.bot:
+        return
+    if isinstance(
+            message.channel,
+            discord.channel.DMChannel) and message.author != commands.user:
+        await message.channel.send(
+            "this is a DM, you can't use my feature here")
     if msg in reply_bot.greetings:
         await message.channel.send(random.choice(reply_bot.greetings_back))
     if msg in reply_bot.say_bye:
@@ -272,16 +340,21 @@ async def on_message(message):
     await commands.process_commands(message)
 
 
+#load feature
+if __name__ == '__main__':
+    for extension in initial_extensions:
+        commands.load_extension(extension)
+
+
 #bot ready
 @commands.event
 async def on_ready():
     print('We have logged in as {0.user}'.format(commands))
     await commands.change_presence(
         status=discord.Status.idle,
-        activity=discord.Game(name="UR MOM | rba.help"))
-    commands.load_extension("music")
-    commands.load_extension("joinandleave")
-    commands.load_extension("cool_feature")
+        activity=discord.Streaming(
+            name="Amogus",
+            url='https://www.youtube.com/watch?v=T59N3DPrvac&t=13s'))
 
 
 keep_alive()
