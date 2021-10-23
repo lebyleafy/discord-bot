@@ -14,6 +14,7 @@ import qrcode
 import qrcode.image.svg
 import os
 from aiohttp import ClientSession
+from discord.ext.commands import cooldown, BucketType
 
 reddit = praw.Reddit(client_id='6KPuXtvipyTjhA',
                      client_secret='gDP_UibkLFxRlAJ2fcXgnehpIKXyzA',
@@ -101,6 +102,7 @@ def decrypt(message):
 
     decipher = ''
     citext = ''
+
     for letter in message:
 
         # checks for space
@@ -239,6 +241,7 @@ class cool_Feature(commands.Cog):
 #spam
 
     @commands.command()
+    @commands.cooldown(1, 60, commands.BucketType.user)
     @commands.guild_only()
     async def spam(self, ctx, arg1, *arg2):
         a = ' '.join(arg2)
@@ -372,7 +375,6 @@ class cool_Feature(commands.Cog):
         except:
             print("error creating your QR")
 
-
 #urban dictionary
 
     @commands.command(name="Urban dictionary",
@@ -390,60 +392,95 @@ class cool_Feature(commands.Cog):
         async with ClientSession() as session:
             async with session.get(url, headers=headers,
                                    params=querystring) as response:
+                try:
+                    r = await response.json()
+                    definition1 = r['list'][0]['definition']
+                    definition2 = r['list'][1]['definition']
+                    definition3 = r['list'][2]['definition']
+                    definition4 = r['list'][3]['definition']
+                    definition5 = r['list'][4]['definition']
 
-                r = await response.json()
-                definition1 = r['list'][0]['definition']
-                definition2 = r['list'][1]['definition']
-                definition3 = r['list'][2]['definition']
-                definition4 = r['list'][3]['definition']
-                definition5 = r['list'][4]['definition']
+                    example1 = r['list'][0]['example']
+                    example2 = r['list'][1]['example']
+                    example3 = r['list'][2]['example']
+                    example4 = r['list'][3]['example']
+                    example5 = r['list'][4]['example']
 
-                example1 = r['list'][0]['example']
-                example2 = r['list'][1]['example']
-                example3 = r['list'][2]['example']
-                example4 = r['list'][3]['example']
-                example5 = r['list'][4]['example']
+                    embed = discord.Embed(title=f"Result for:   ***{term}***",
+                                          color=0x206694)
+                    embed.add_field(name=term,
+                                    value=definition1[0:1024],
+                                    inline=False)
+                    embed.add_field(name="example: ",
+                                    value=example1[0:1024],
+                                    inline=False)
+                    embed.add_field(name=term,
+                                    value=definition2[0:1024],
+                                    inline=False)
+                    embed.add_field(name="example: ",
+                                    value=example2[0:1024],
+                                    inline=False)
+                    embed.add_field(name=term,
+                                    value=definition3[0:1024],
+                                    inline=False)
+                    embed.add_field(name="example: ",
+                                    value=example3[0:1024],
+                                    inline=True)
+                    embed.add_field(name=term,
+                                    value=definition3[0:1024],
+                                    inline=False)
+                    embed.add_field(name="example: ",
+                                    value=example3[0:1024],
+                                    inline=True)
+                    embed.add_field(name=term,
+                                    value=definition4[0:1024],
+                                    inline=False)
+                    embed.add_field(name="example: ",
+                                    value=example4[0:1024],
+                                    inline=True)
+                    embed.add_field(name=term,
+                                    value=definition5[0:1024],
+                                    inline=False)
+                    embed.add_field(name="example: ",
+                                    value=example5[0:1024],
+                                    inline=True)
 
-                embed = discord.Embed(title=f"Result for:   ***{term}***",
-                                      color=0x206694)
-                embed.add_field(name=term,
-                                value=definition1[0:1024],
-                                inline=False)
-                embed.add_field(name="example: ",
-                                value=example1[0:1024],
-                                inline=False)
-                embed.add_field(name=term,
-                                value=definition2[0:1024],
-                                inline=False)
-                embed.add_field(name="example: ",
-                                value=example2[0:1024],
-                                inline=False)
-                embed.add_field(name=term,
-                                value=definition3[0:1024],
-                                inline=False)
-                embed.add_field(name="example: ",
-                                value=example3[0:1024],
-                                inline=True)
-                embed.add_field(name=term,
-                                value=definition3[0:1024],
-                                inline=False)
-                embed.add_field(name="example: ",
-                                value=example3[0:1024],
-                                inline=True)
-                embed.add_field(name=term,
-                                value=definition4[0:1024],
-                                inline=False)
-                embed.add_field(name="example: ",
-                                value=example4[0:1024],
-                                inline=True)
-                embed.add_field(name=term,
-                                value=definition5[0:1024],
-                                inline=False)
-                embed.add_field(name="example: ",
-                                value=example5[0:1024],
-                                inline=True)
+                    await ctx.send(embed=embed)
 
-                await ctx.send(embed=embed)
+                except:
+                    await ctx.send("no definiton for that")
+
+
+#server stat
+
+    @commands.command()
+    @commands.guild_only()
+    async def serverstats(self, ctx):
+        true_members = 0
+        for member in ctx.guild.members:
+            if not member.bot:
+                true_members += 1
+        bot_members = 0
+        for member in ctx.guild.members:
+            if member.bot:
+                bot_members += 1
+        embed = discord.Embed(title=f"Stats of: {ctx.guild.name}")
+        embed.add_field(name="Users:",
+                        value=ctx.guild.member_count,
+                        inline=False)
+        embed.add_field(name="Members:", value=true_members, inline=False)
+        embed.add_field(name="Bots:", value=bot_members, inline=False)
+        embed.add_field(name="Channels:",
+                        value=len(ctx.guild.channels),
+                        inline=False)
+        await ctx.send(embed=embed)
+
+    @spam.error
+    async def spam_error(self, ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            await ctx.send(
+                f'This command is on cooldown, you can use it in {round(error.retry_after, 2)} seconds'
+            )
 
 
 def setup(bot):
