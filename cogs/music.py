@@ -298,7 +298,7 @@ class Music(commands.Cog):
 
         await player.queue.put(source)
 
-    @commands.command(name='pause')
+    @commands.command(name='pause', aliases = ["stop","pau"])
     async def pause_(self, ctx):
         """Pause the currently playing song."""
         vc = ctx.voice_client
@@ -326,7 +326,7 @@ class Music(commands.Cog):
         vc.resume()
         await ctx.send(f'**`{ctx.author}`**: Resumed the song!')
 
-    @commands.command(name='skip', aliases=['s'])
+    @commands.command(name='skip', aliases=['s','sk'])
     async def skip_(self, ctx):
         """Skip the song."""
         vc = ctx.voice_client

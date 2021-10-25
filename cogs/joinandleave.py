@@ -3,12 +3,9 @@ from discord.ext import commands
 
 
 class join_leave(commands.Cog):
-
-    __slots__ = ('bot', 'players')
-
     def __init__(self, bot):
         self.bot = bot
-        self.players = {}
+
 #join
 
     @commands.Cog.listener()
@@ -19,7 +16,7 @@ class join_leave(commands.Cog):
                 embed.add_field(
                     name="WELCOME",
                     value=
-                    f"{member.mention} has joined ***{member.guild.name}***",
+                    f"{member.mention} has joined ***{member.guild.name}*** ",
                     inline=False)
                 embed.set_thumbnail(
                     url=

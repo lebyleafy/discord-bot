@@ -285,10 +285,12 @@ class cool_Feature(commands.Cog):
     @commands.command(name='avatar', aliases=['ava'])
     @commands.guild_only()
     async def avatar(self, ctx, *, avamember: discord.Member = None):
-        userAvatarUrl = avamember.avatar_url
-        embed = discord.Embed(title=f"{avamember}'s avatar", color=0x2B59B)
-        embed.set_image(url=userAvatarUrl)
-        await ctx.send(embed=embed)
+      if avamember == None:
+        avamember = ctx.author
+      userAvatarUrl = avamember.avatar_url
+      embed = discord.Embed(title=f"{avamember}'s avatar", color=0x2B59B)
+      embed.set_image(url=userAvatarUrl)
+      await ctx.send(embed=embed)
 
 #dictionary
 
@@ -451,29 +453,6 @@ class cool_Feature(commands.Cog):
                     await ctx.send("no definiton for that")
 
 
-#server stat
-
-    @commands.command()
-    @commands.guild_only()
-    async def serverstats(self, ctx):
-        true_members = 0
-        for member in ctx.guild.members:
-            if not member.bot:
-                true_members += 1
-        bot_members = 0
-        for member in ctx.guild.members:
-            if member.bot:
-                bot_members += 1
-        embed = discord.Embed(title=f"Stats of: {ctx.guild.name}")
-        embed.add_field(name="Users:",
-                        value=ctx.guild.member_count,
-                        inline=False)
-        embed.add_field(name="Members:", value=true_members, inline=False)
-        embed.add_field(name="Bots:", value=bot_members, inline=False)
-        embed.add_field(name="Channels:",
-                        value=len(ctx.guild.channels),
-                        inline=False)
-        await ctx.send(embed=embed)
 
     @spam.error
     async def spam_error(self, ctx, error):
