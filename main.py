@@ -1,4 +1,3 @@
-
 import discord
 import os
 import random
@@ -10,6 +9,12 @@ import json
 import math
 import time
 from discord.ext.commands import cooldown, BucketType
+from discord.ext.commands.context import Context
+from discord.ext.commands import has_permissions
+from discord.ext import commands
+from os import listdir
+from discord import Guild
+import json
 
 cooldown = []
 
@@ -22,9 +27,9 @@ commands = commands.Bot(command_prefix=commands.when_mentioned_or("rba."),
 
 initial_extensions = [
     'cogs.music', 'cogs.cool_feature', 'cogs.joinandleave',
-    'cogs.userinformation','cogs.fun_anime','cogs.economy_system','cogs.help','cogs.ServerStats'
+    'cogs.userinformation', 'cogs.fun_anime', 'cogs.economy_system',
+    'cogs.help', 'cogs.ServerStats', 'cogs.minesweeper','cogs.sussygame'
 ]
-
 
 with open("users.json", "ab+") as ab:
     ab.close()
@@ -57,7 +62,6 @@ async def level_up(users, user, message):
             f':tada: {user.mention} has earned total of {lvl_end} social credits. Congrats! :tada:'
         )
         users[f'{user.id}']["level"] = lvl_end
-
 
 
 @commands.event
@@ -100,7 +104,6 @@ async def on_message(message):
         with open('users.json', 'w') as f:
             json.dump(users, f)
     await commands.process_commands(message)
-
 
 
 #load feature

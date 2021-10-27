@@ -138,6 +138,14 @@ class Anime_fun(commands.Cog):
             embed.set_image(url=str(b))
             await ctx.send(embed=embed)
 
+    #bully    
+    @commands.command()
+    @commands.guild_only()
+    async def neko(self, ctx):
+        b = Waifu().neko()
+        await ctx.send(b)
+
+
 #character search
     @commands.command(name="charsearch",
                       aliases=["cs", "chars", "char search"])

@@ -8,6 +8,8 @@ import traceback
 from async_timeout import timeout
 from functools import partial
 from youtube_dl import YoutubeDL
+from gtts import gTTS
+import os
 
 ytdlopts = {
     'format': 'bestaudio/best',
@@ -40,12 +42,34 @@ class YTDLSource(discord.PCMVolumeTransformer):
     def __init__(self, source, *, data, requester):
         super().__init__(source)
         self.requester = requester
-
+        self.duration = self.parse_duration(int(data.get('duration')))
         self.title = data.get('title')
         self.web_url = data.get('webpage_url')
-
+        self.thumbnail = data.get('thumbnail')
+        self.uploader = data.get('uploader')
+        self.uploader_url = data.get('uploader_url')
+        self.views = data.get('view_count')
+        self.likes = data.get('like_count')
         # YTDL info dicts (data) have other useful information you might want
         # https://github.com/rg3/youtube-dl/blob/master/README.md
+    @staticmethod
+    def parse_duration(duration: int):
+        # returns a tuple containing the quotient  and the remainder
+        minutes, seconds = divmod(duration, 60)
+        hours, minutes = divmod(minutes, 60)
+        days, hours = divmod(hours, 24)
+
+        duration = []
+        if days > 0:
+            duration.append('{} days'.format(days))
+        if hours > 0:
+            duration.append('{} hours'.format(hours))
+        if minutes > 0:
+            duration.append('{} minutes'.format(minutes))
+        if seconds > 0:
+            duration.append('{} seconds'.format(seconds))
+
+        return ', '.join(duration)
 
     def __getitem__(self, item: str):
         """Allows us to access attributes similar to a dict.
@@ -124,9 +148,11 @@ class MusicPlayer:
 
     async def player_loop(self):
         """Our main player loop."""
+
         await self.bot.wait_until_ready()
 
         while not self.bot.is_closed():
+
             self.next.clear()
 
             try:
@@ -135,7 +161,6 @@ class MusicPlayer:
                     source = await self.queue.get()
             except asyncio.TimeoutError:
                 return self.destroy(self._guild)
-
 
             if not isinstance(source, YTDLSource):
                 # Source was probably a stream (not downloaded)
@@ -155,9 +180,20 @@ class MusicPlayer:
             self._guild.voice_client.play(source,
                                           after=lambda _: self.bot.loop.
                                           call_soon_threadsafe(self.next.set))
-            self.np = await self._channel.send(
-                f'**Now Playing:** `{source.title}` requested by '
-                f'`{source.requester}`')
+            embed = discord.Embed(title="Now playing",
+                                  description=str(source.title),
+                                  color=0xFF5733)
+            embed.set_thumbnail(url=source.thumbnail)
+            embed.add_field(
+                name="``Uploader:``",
+                value=f"[{source.uploader}]({source.uploader_url})")
+            embed.add_field(name="``Duration:``", value=str(source.duration))
+            embed.add_field(name="``Video link:``",
+                            value=f"[Click here]({source.web_url})")
+            embed.add_field(name="👍 **Likes:**", value=str(source.likes))
+            embed.add_field(name="👁️ **Views:**", value=str(source.views))
+            embed.set_footer(text=f"Requested by: {source.requester}")
+            self.np = await self._channel.send(embed=embed)
             await self.next.wait()
 
             # Make sure the FFmpeg process is cleaned up.
@@ -298,7 +334,7 @@ class Music(commands.Cog):
 
         await player.queue.put(source)
 
-    @commands.command(name='pause', aliases = ["stop","pau"])
+    @commands.command(name='pause', aliases=["stop", "pau"])
     async def pause_(self, ctx):
         """Pause the currently playing song."""
         vc = ctx.voice_client
@@ -326,7 +362,7 @@ class Music(commands.Cog):
         vc.resume()
         await ctx.send(f'**`{ctx.author}`**: Resumed the song!')
 
-    @commands.command(name='skip', aliases=['s','sk'])
+    @commands.command(name='skip', aliases=['s', 'sk'])
     async def skip_(self, ctx):
         """Skip the song."""
         vc = ctx.voice_client
@@ -365,6 +401,31 @@ class Music(commands.Cog):
 
         await ctx.send(embed=embed)
 
+    @commands.command(name='volume', aliases=['vol'])
+    async def change_volume(self, ctx, *, vol: float):
+        """Change the player volume.
+        Parameters
+        ------------
+        volume: float or int [Required]
+            The volume to set the player to in percentage. This must be between 1 and 100.
+        """
+        vc = ctx.voice_client
+
+        if not vc or not vc.is_connected():
+            return await ctx.send('I am not currently connected to voice!',
+                                  delete_after=20)
+
+        if not 0 < vol < 101:
+            return await ctx.send('Please enter a value between 1 and 100.')
+
+        player = self.get_player(ctx)
+
+        if vc.source:
+            vc.source.volume = vol / 100
+
+        player.volume = vol / 100
+        await ctx.send(f'**`{ctx.author}`**: Set the volume to **{vol}%**')
+
     @commands.command(name='now_playing',
                       aliases=['np', 'current', 'currentsong', 'playing'])
     async def now_playing_(self, ctx):
@@ -402,6 +463,59 @@ class Music(commands.Cog):
                                   delete_after=20)
 
         await self.cleanup(ctx.guild)
+
+    @commands.command(name="say", aliases=['talk', 'tell'])
+    @commands.cooldown(1, 7, commands.BucketType.guild)
+    async def say(self, ctx, lang, *, text=None):
+        # grab the user who sent the command
+        await ctx.trigger_typing()
+
+        if lang in ["vn", "vietnam", "vi", "vie", "viet"]:
+            tts = gTTS(text=text, lang="vi")
+            tts.save("text.mp3")
+        if lang in ["en", "english", "eng"]:
+            tts = gTTS(text=text, lang="en")
+            tts.save("text.mp3")
+        if text == None:
+            # We have nothing to speak
+            await ctx.send(
+                f"Hey {ctx.author.mention}, enter language to continue (supported language only)"
+            )
+            await ctx.send("If already entered please tell me what to say")
+            await ctx.send("Supported language: Vietnamese and English")
+            return
+
+        vc = ctx.voice_client  # We use it more then once, so make it an easy variable
+        if not vc:
+            # We are not currently in a voice channel
+            await ctx.send(
+                "I need to be in a voice channel to do this, please use the connect command."
+            )
+            return
+
+    # Lets prepare our text, and then save the audio file
+
+        try:
+            # Lets play that mp3 file in the voice channel
+            vc.play(discord.FFmpegPCMAudio('text.mp3'),
+                    after=lambda e: print(f"Finished playing: {e}"))
+            await ctx.send(f"**saying** ``{text}``")
+
+            # Lets set the volume to 1
+            vc.source = discord.PCMVolumeTransformer(vc.source)
+            vc.source.volume = 1
+
+    # Handle the exceptions that can occur
+        except TypeError as e:
+            await ctx.send(f"TypeError exception:\n`{e}`")
+
+    @say.error
+    async def say_error(self, ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            await ctx.send(
+                f'This command is on cooldown, you can use it in {round(error.retry_after, 2)} seconds'
+            )
+
 
 def setup(bot):
     bot.add_cog(Music(bot))

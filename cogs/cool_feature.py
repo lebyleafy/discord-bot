@@ -241,7 +241,7 @@ class cool_Feature(commands.Cog):
 #spam
 
     @commands.command()
-    @commands.cooldown(1, 60, commands.BucketType.user)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.guild_only()
     async def spam(self, ctx, arg1, *arg2):
         a = ' '.join(arg2)
@@ -285,12 +285,12 @@ class cool_Feature(commands.Cog):
     @commands.command(name='avatar', aliases=['ava'])
     @commands.guild_only()
     async def avatar(self, ctx, *, avamember: discord.Member = None):
-      if avamember == None:
-        avamember = ctx.author
-      userAvatarUrl = avamember.avatar_url
-      embed = discord.Embed(title=f"{avamember}'s avatar", color=0x2B59B)
-      embed.set_image(url=userAvatarUrl)
-      await ctx.send(embed=embed)
+        if avamember == None:
+            avamember = ctx.author
+        userAvatarUrl = avamember.avatar_url
+        embed = discord.Embed(title=f"{avamember}'s avatar", color=0x2B59B)
+        embed.set_image(url=userAvatarUrl)
+        await ctx.send(embed=embed)
 
 #dictionary
 
@@ -377,6 +377,7 @@ class cool_Feature(commands.Cog):
         except:
             print("error creating your QR")
 
+
 #urban dictionary
 
     @commands.command(name="Urban dictionary",
@@ -451,8 +452,6 @@ class cool_Feature(commands.Cog):
 
                 except:
                     await ctx.send("no definiton for that")
-
-
 
     @spam.error
     async def spam_error(self, ctx, error):
