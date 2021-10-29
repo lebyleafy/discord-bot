@@ -10,6 +10,7 @@ from functools import partial
 from youtube_dl import YoutubeDL
 from gtts import gTTS
 import os
+import time
 
 ytdlopts = {
     'format': 'bestaudio/best',
@@ -500,6 +501,8 @@ class Music(commands.Cog):
             vc.play(discord.FFmpegPCMAudio('text.mp3'),
                     after=lambda e: print(f"Finished playing: {e}"))
             await ctx.send(f"**saying** ``{text}``")
+            time.sleep(10)
+            os.remove("text.mp3")
 
             # Lets set the volume to 1
             vc.source = discord.PCMVolumeTransformer(vc.source)

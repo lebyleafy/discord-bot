@@ -8,14 +8,14 @@ class Anime_fun(commands.Cog):
         self.bot = bot
 
 #waifu pic
-    @commands.command(name="randomwaifu", aliases=["rw"])
+    @commands.command(name="rw")
     @commands.guild_only()
-    async def waifu_pics(self, ctx):
+    async def random_waifu_pics(self, ctx):
         a = Waifu().random()
         await ctx.send(a)
 
 #untagged waifu
-    @commands.command(name="untaggedwaifu", aliases=["uw"])
+    @commands.command(name="uw")
     @commands.guild_only()
     async def waifu_pics(self, ctx):
         a = Waifu().waifu()

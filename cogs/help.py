@@ -167,6 +167,10 @@ class Help_Command(commands.Cog):
                         value="``it send picture from reddit.``")
         page8.add_field(name="rba.qr or QR <value>",
                         value="``create QR code.``")
+        page8.add_field(name="rba.abandon(aban) <value>",
+                        value="``Abandon something``")
+        page8.add_field(name="rba.wnated <value>",
+                        value="``wanted someone``")
 
         page8.set_footer(text="8/10")
 
@@ -188,6 +192,8 @@ class Help_Command(commands.Cog):
         page9.add_field(name='rba.slots[amount] (sl)', value="``play slots``")
         page9.add_field(name='rba.rolldice[amount] (rd)',
                         value="``play dice``")
+        page9.add_field(name='rba.coinflip[amount][head or tail] (cf)',
+                        value="``play coin flip``")
         page9.set_footer(text="9/10")
 
         page10 = discord.Embed(

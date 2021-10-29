@@ -10,6 +10,7 @@ class games(commands.Cog):
         self.bot = bot
     
     @commands.command()
+    @commands.guild_only()
     async def findimposter(self, ctx):
         """
         Impostors can sabotage the reactor, 
@@ -73,8 +74,69 @@ class games(commands.Cog):
                         embed = get_embed("Defeat", description, discord.Color.red())
                         await ctx.send(embed=embed)
                         break
-
-
         await msg.clear_reactions()
+
+
+    @commands.command()
+    @commands.guild_only()
+    async def red(self, ctx):
+     file = discord.File('amogus/Red.png')
+     await ctx.send(file= file)
+
+    @commands.command()
+    @commands.guild_only()
+    async def brown(self, ctx):
+     file = discord.File('amogus/Brown.png')
+     await ctx.send(file= file)
+
+    @commands.command()
+    @commands.guild_only()
+    async def blue(self, ctx):
+     file = discord.File('amogus/Blue.png')
+     await ctx.send(file= file)
+
+    @commands.command(name = "cyan",aliases = ["lightblue","light_blue"])
+    @commands.guild_only()
+    async def cyan(self, ctx):
+     file = discord.File('amogus/Cyan.png')
+     await ctx.send(file= file)
+
+    @commands.command()
+    @commands.guild_only()
+    async def green(self, ctx):
+     file = discord.File('amogus/Green.png')
+     await ctx.send(file= file)
+
+    @commands.command(name = "lime",aliases = ["lightgreen","light_green"])
+    @commands.guild_only()
+    async def lime(self, ctx):
+     file = discord.File('amogus/Lime.png')
+     await ctx.send(file= file)
+
+    @commands.command()
+    @commands.guild_only()
+    async def orange(self, ctx):
+     file = discord.File('amogus/Orange.png')
+     await ctx.send(file= file) 
+
+    @commands.command()
+    @commands.guild_only()
+    async def pink(self, ctx):
+     file = discord.File('amogus/Pink.png')
+     await ctx.send(file= file) 
+
+    @commands.command()
+    @commands.guild_only()
+    async def purple(self, ctx):
+     file = discord.File('amogus/Purple.png')
+     await ctx.send(file= file) 
+
+    @commands.command()
+    @commands.guild_only()
+    async def white(self, ctx):
+     file = discord.File('amogus/White.png')
+     await ctx.send(file= file) 
+
+
 def setup(bot):
     bot.add_cog(games(bot))

@@ -123,3 +123,20 @@ praise = [
     "you are funnier than SOME woman!"
     "imagine asking a bot to praise you"
 ]#praise
+
+ball_8 = [
+  'As I see it, yes.',
+             'Yes.',
+             'Positive',
+             'From my point of view, yes',
+             'Convinced.',
+             'Most Likley.',
+             'Chances High',
+             'No.',
+             'Negative.',
+             'Not Convinced.',
+             'Perhaps.',
+             'Not Sure',
+             'Mayby',
+             'Im to lazy to predict.',
+             'I am tired. *proceeds with sleeping*']

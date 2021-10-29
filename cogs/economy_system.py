@@ -164,7 +164,7 @@ class Economy(commands.Cog):
 
         with open("bank.json", 'w') as f:
             json.dump(users, f)
-    
+
     @commands.command()
     @commands.cooldown(1, 604800, commands.BucketType.user)
     @commands.guild_only()
@@ -215,14 +215,13 @@ class Economy(commands.Cog):
         if bal[0] < 100:
             await ctx.send("not worth it man")
             return
-       
+
         earnings = random.randrange(0, bal[0])
 
         await update_bank(ctx.author, earnings)
         await update_bank(member, -1 * earnings)
 
         await ctx.send(f"You robbed {earnings}")
-
 
     @commands.command()
     @commands.guild_only()
@@ -317,8 +316,9 @@ class Economy(commands.Cog):
 
 #roll dice
 
-    @commands.command(name= "rolldice", aliases = ["rd","rdice","dice"])
+    @commands.command(name="rolldice", aliases=["rd", "rdice", "dice"])
     @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.guild_only()
     async def rolldice(self, ctx, amount=None):
 
         if amount == None:
@@ -365,7 +365,7 @@ class Economy(commands.Cog):
                 await update_bank(ctx.author, -1 * amount)
                 await ctx.send(f"You lost *{-1* amount}* !")
                 return
-            if b != c and b % 2 == 0: 
+            if b != c and b % 2 == 0:
                 await ctx.send(f"Tie")
                 return
 
@@ -374,6 +374,78 @@ class Economy(commands.Cog):
             await ctx.send(
                 "Procces has been canceled because you didn't respond in **30** seconds."
             )
+
+    @commands.command(name='coinflip', aliases=['coin_flip', 'cf'])
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.guild_only()
+    async def coin_flip(self, ctx, amount=None, text=None):
+        if amount == None:
+            await ctx.send("Place a bet")
+            return
+
+        bal = await update_bank(ctx.author)
+        amount = int(amount)
+
+        if amount > bal[0]:
+            await ctx.send("You don't have that much money!")
+            return
+        if amount < 0:
+            await ctx.send("Amount must be positive")
+            return
+
+        if text is None:
+            await ctx.send(f"{ctx.author} chose Head")
+            time.sleep(1)
+            coming = await ctx.send("Here it comes")
+            time.sleep(3)
+            await coming.delete()
+            flip = random.randint(1, 2)
+            if flip == 1:
+                await update_bank(ctx.author, 2 * amount)
+                await ctx.send(
+                    f"Coin stopped at <:head:903546796347916320> and you won **{2 * amount}**"
+                )
+            else:
+                await update_bank(ctx.author, -1 * amount)
+                await ctx.send(
+                    f"Coin stopped at <:tails:903546776173305926> and you lost **{-1 * amount}**"
+                )
+
+        if text in ['head', 'heads', 'Head', 'Heads']:
+            await ctx.send(f"{ctx.author} chose Head")
+            time.sleep(1)
+            coming = await ctx.send("Here it comes")
+            time.sleep(3)
+            await coming.delete()
+            flip = random.randint(1, 2)
+            if flip == 1:
+                await update_bank(ctx.author, 2 * amount)
+                await ctx.send(
+                    f"Coin stopped at <:head:903546796347916320> and you won **{2 * amount}**"
+                )
+            else:
+                await update_bank(ctx.author, -1 * amount)
+                await ctx.send(
+                    f"Coin stopped at <:tails:903546776173305926> and you lost **{-1 * amount}**"
+                )
+
+        if text in ['tail', 'tails', 'Tail', 'Tails']:
+            await ctx.send(f"{ctx.author} chose Tail")
+            time.sleep(1)
+            coming = await ctx.send("Here it comes")
+            time.sleep(3)
+            await coming.delete()
+            flip = random.randint(1, 2)
+            if flip == 1:
+                await update_bank(ctx.author, -1 * amount)
+                await ctx.send(
+                    f"Coin stopped at <:head:903546796347916320> and you lost **{-1 * amount}**"
+                )
+            else:
+                await update_bank(ctx.author, 2 * amount)
+                await ctx.send(
+                    f"Coin stopped at <:tails:903546776173305926> and you won **{2 * amount}**"
+                )
 
     @work.error
     async def work_error(self, ctx, error):
@@ -395,14 +467,14 @@ class Economy(commands.Cog):
             await ctx.send(
                 f'This command is on cooldown, you can use it in {round(error.retry_after/3600, 2)} hours'
             )
-    
+
     @weekly.error
     async def weekly_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(
                 f'This command is on cooldown, you can use it in {round(error.retry_after/86400, 2)} days'
             )
- 
+
     @rob.error
     async def rob_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
@@ -416,8 +488,16 @@ class Economy(commands.Cog):
             await ctx.send(
                 f'This command is on cooldown, you can use it in {round(error.retry_after, 2)} seconds'
             )
+
     @rolldice.error
     async def rolldice_error(self, ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            await ctx.send(
+                f'This command is on cooldown, you can use it in {round(error.retry_after, 2)} seconds'
+            )
+
+    @coin_flip.error
+    async def coin_flip_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(
                 f'This command is on cooldown, you can use it in {round(error.retry_after, 2)} seconds'

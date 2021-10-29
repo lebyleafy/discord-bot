@@ -15,6 +15,7 @@ import qrcode.image.svg
 import os
 from aiohttp import ClientSession
 from discord.ext.commands import cooldown, BucketType
+import reply_bot
 
 reddit = praw.Reddit(client_id='6KPuXtvipyTjhA',
                      client_secret='gDP_UibkLFxRlAJ2fcXgnehpIKXyzA',
@@ -377,7 +378,6 @@ class cool_Feature(commands.Cog):
         except:
             print("error creating your QR")
 
-
 #urban dictionary
 
     @commands.command(name="Urban dictionary",
@@ -452,6 +452,52 @@ class cool_Feature(commands.Cog):
 
                 except:
                     await ctx.send("no definiton for that")
+
+
+#8ball
+
+    @commands.command(name='8ball')
+    async def _8ball(self, ctx, *, question):
+        response = random.choice(reply_bot.ball_8)
+        embed = discord.Embed(title=":8ball: The Magic 8 Ball has Spoken!")
+        embed.add_field(name='Question: ', value=f'{question}', inline=True)
+        embed.add_field(name='Answer: ', value=f'{response}', inline=False)
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    @commands.guild_only()
+    async def gay(self, ctx, user: discord.Member = None):
+        if user is None:
+            user = ctx.author
+
+        if user.id == 528225222525059102:
+            await ctx.send(
+                "huh you think leby didnt expected this? I'm a chad and straighter than your mom's dacing pole"
+            )
+
+        if user == ctx.author and user.id != 528225222525059102 :
+            embed = discord.Embed(
+                title="Gay meter: ",
+                description=
+                f"You are {random.randrange(100)}% gay :gay_pride_flag:")
+            await ctx.send(embed=embed)
+        elif user.id != 528225222525059102:
+            embed = discord.Embed(
+                title="Gay meter: ",
+                description=
+                f"He is {random.randrange(100)}% gay :gay_pride_flag:")
+            await ctx.send(embed=embed)
+
+    @commands.command()
+    @commands.guild_only()
+    async def penis(self, ctx, user: discord.Member = None):
+        if user is None:
+            user = ctx.author
+        i = "8{}D".format("=" * random.randint(0, 30))
+        embed = discord.Embed(title="Penis size: ",description=i)
+        if user.id == 528225222525059102:
+          embed = discord.Embed(title="Penis size: ",description="8{}D".format("=" * 48))
+        await ctx.send(embed=embed)
 
     @spam.error
     async def spam_error(self, ctx, error):

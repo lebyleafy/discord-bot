@@ -28,7 +28,7 @@ commands = commands.Bot(command_prefix=commands.when_mentioned_or("rba."),
 initial_extensions = [
     'cogs.music', 'cogs.cool_feature', 'cogs.joinandleave',
     'cogs.userinformation', 'cogs.fun_anime', 'cogs.economy_system',
-    'cogs.help', 'cogs.ServerStats', 'cogs.minesweeper','cogs.sussygame'
+    'cogs.help', 'cogs.ServerStats', 'cogs.minesweeper','cogs.sussygame','cogs.image_fun'
 ]
 
 with open("users.json", "ab+") as ab:
