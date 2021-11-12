@@ -305,7 +305,7 @@ class Music(commands.Cog):
                     f'Connecting to channel: <{channel}> timed out.')
 
         await ctx.send(f'Connected to: **{channel}**', delete_after=20)
-        await ctx.send("Hello :hot_face: ")
+        await ctx.send("Hello :hot_face: ", delete_after=20)
 
     @commands.command(name='play', aliases=['sing', 'p'])
     async def play_(self, ctx, *, search: str):
@@ -467,7 +467,7 @@ class Music(commands.Cog):
 
     @commands.command(name="say", aliases=['talk', 'tell'])
     @commands.cooldown(1, 7, commands.BucketType.guild)
-    async def say(self, ctx, lang, *, text=None):
+    async def say_(self, ctx, lang, *, text=None):
         # grab the user who sent the command
         await ctx.trigger_typing()
 
@@ -504,15 +504,12 @@ class Music(commands.Cog):
             time.sleep(10)
             os.remove("text.mp3")
 
-            # Lets set the volume to 1
-            vc.source = discord.PCMVolumeTransformer(vc.source)
-            vc.source.volume = 1
 
     # Handle the exceptions that can occur
         except TypeError as e:
             await ctx.send(f"TypeError exception:\n`{e}`")
 
-    @say.error
+    @say_.error
     async def say_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(

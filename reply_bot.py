@@ -46,12 +46,12 @@ bad_reply = [
 fuck = [
     "fuck", "fck", "fack", "fucker", "fak", "fk", "fuk", "fac", "Fuck", "Fak",
     "Fck"
-]#client chat
+]  #client chat
 
 fuck_reply = [
     "nou", "yes fuck me daddy", "omg pls", "haha go do it urself",
     "imagine being toxic", "gay", "i eat ass too"
-]#bot reply
+]  #bot reply
 
 roast_ppl = [
     "'s family tree must be a catus because everybody on it is a prick.",
@@ -65,13 +65,13 @@ roast_ppl = [
 wtf = [
     "WTF", "wtf", "WATAFACK", "tf", "what the fuck", "What the fuck", "WTF?",
     "wtf?", "WATAFACK?", "tf?", "what the fuck?", "What the fuck?", "TF",
-    "TF?", "Wtf", "Wtf?"
-]#client chat
+    "TF?", "Wtf", "Wtf?", 'WHAT THE FUCK','WHAT THE FUCK?','THE FUCK','THE FUCK?'
+]  #client chat
 
 wtf_reply = [
     "no idea", "wtf", "i dont know either", "why u so dumb", "ehhh idk", "tf",
     "hmmm"
-]#bot reply
+]  #bot reply
 
 stfu = [
     'stfu', 'shut the fuck up', 'STFU', 'Stfu', 'Shut the fuck up', 'shut',
@@ -82,34 +82,34 @@ stfu_reply = [
     "how rude", 'why dont you do it by yourself',
     'i think you are the one who should shut up', 'no u',
     'woa! be nice to your friend, prick', 'you too!'
-]#bot reply
+]  #bot reply
 
 who_are_you = [
     "who are you leafy", "who are you bot leafy", "who are you BOT leafy",
     "Who are you leafy", "Who are you bot leafy", "Who are you BOT leafy",
     "who are you leafy?", "who are you bot leafy?", "who are you BOT leafy?",
     "Who are you leafy?", "Who are you bot leafy?", "Who are you BOT leafy?"
-]#client chat
+]  #client chat
 
 who_are_you_reply = [
     "uh i am a bot lol",
     "I'm leafy but a little smarter than who created me XD",
     "I'm bot u dumbass", "weird question, isnt that too obvious that im a bot?"
-]#bot reply
+]  #bot reply
 
 who_is_leafy = [
     "who is leafy", "who is leafy?", "Who is leafy?", "Who is leafy",
     "who's leafy", "Who's leafy", "who's leafy?", "Who's leafy?", "Whos leafy",
     "whos leafy", "whos leafy?", "Whos leafy?", "who leafy", "who leafy?",
     "Who leafy", "Who leafy?", "leafy?", "Leafy?"
-]#client chat
+]  #client chat
 
 who_is_leafy_reply = [
     "he's the greatest man, he created me||(i was programmed to say this thing)||",
     "hes kinda cool he plays csgo and does some coding",
     "hes programmer who created me",
     "he's handsome and badass, real THE SHIT||(he told me to say that he's not that cool ya know XD)||"
-]#bot reply
+]  #bot reply
 
 praise = [
     'you have the "*biggest*" cock I'
@@ -122,21 +122,19 @@ praise = [
     "nah man, try go outside and touch some grass. Maybe you can find someone to praise you",
     "you are funnier than SOME woman!"
     "imagine asking a bot to praise you"
-]#praise
+]  #praise
 
 ball_8 = [
-  'As I see it, yes.',
-             'Yes.',
-             'Positive',
-             'From my point of view, yes',
-             'Convinced.',
-             'Most Likley.',
-             'Chances High',
-             'No.',
-             'Negative.',
-             'Not Convinced.',
-             'Perhaps.',
-             'Not Sure',
-             'Mayby',
-             'Im to lazy to predict.',
-             'I am tired. *proceeds with sleeping*']
+    'As I see it, yes.', 'Yes.', 'Positive', 'From my point of view, yes',
+    'Convinced.', 'Most Likley.', 'Chances High', 'No.', 'Negative.',
+    'Not Convinced.', 'Perhaps.', 'Not Sure', 'Mayby',
+    'Im to lazy to predict.', 'I am tired. *proceeds with sleeping*'
+]
+
+who_asked = [
+  "Who asked?","who asked?",'who asked','Who asked','who ask','Who ask','didnt ask','did not ask',"didn't ask","Didnt ask","Didn't ask","Did not ask",'did i ask?','Did I ask?','Did i ask?','did I ask?','did i ask','Did I ask','Did i ask','did I ask'
+]
+
+who_asked_reply = [
+  "I asked",'your mom','shut up weirdo, I asked him',"answer doesn't need question sometimes ya know?",'you literally the one who asked','you neither','did he ask you to say that?','huh what retard'
+]

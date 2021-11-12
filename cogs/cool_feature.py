@@ -8,18 +8,15 @@ from discord.ext import commands
 import wikipedia
 from PyDictionary import PyDictionary
 import reply_bot
-import praw
 from translate import Translator
 import qrcode
 import qrcode.image.svg
 import os
 from aiohttp import ClientSession
 from discord.ext.commands import cooldown, BucketType
-import reply_bot
 
-reddit = praw.Reddit(client_id='6KPuXtvipyTjhA',
-                     client_secret='gDP_UibkLFxRlAJ2fcXgnehpIKXyzA',
-                     user_agent='leafyBOT')
+
+client = wolframalpha.Client('T8TJE5-P2UV7G9TUE')
 
 qr = qrcode.QRCode(
     version=1,
@@ -28,186 +25,28 @@ qr = qrcode.QRCode(
     border=4,
 )
 
-MORSE_CODE_DICT = {
-    'A': '.-',
-    'B': '-...',
-    'C': '-.-.',
-    'D': '-..',
-    'E': '.',
-    'F': '..-.',
-    'G': '--.',
-    'H': '....',
-    'I': '..',
-    'J': '.---',
-    'K': '-.-',
-    'L': '.-..',
-    'M': '--',
-    'N': '-.',
-    'O': '---',
-    'P': '.--.',
-    'Q': '--.-',
-    'R': '.-.',
-    'S': '...',
-    'T': '-',
-    'U': '..-',
-    'V': '...-',
-    'W': '.--',
-    'X': '-..-',
-    'Y': '-.--',
-    'Z': '--..',
-    '1': '.----',
-    '2': '..---',
-    '3': '...--',
-    '4': '....-',
-    '5': '.....',
-    '6': '-....',
-    '7': '--...',
-    '8': '---..',
-    '9': '----.',
-    '0': '-----',
-    ', ': '--..--',
-    '.': '.-.-.-',
-    '?': '..--..',
-    '/': '-..-.',
-    '-': '-....-',
-    '(': '-.--.',
-    ')': '-.--.-'
+num2emo = {
+    '0': 'zero',
+    '1': 'one',
+    '2': 'two',
+    '3': 'three',
+    '4': 'four',
+    '5': 'five',
+    '6': 'six',
+    '7': 'seven',
+    '8': 'eight',
+    '9': 'nine'
 }
-
-
-def encrypt(message):
-    cipher = ''
-    for letter in message:
-        if letter != ' ':
-
-            # Looks up the dictionary and adds the
-            # correspponding morse code
-            # along with a space to separate
-            # morse codes for different characters
-            cipher += MORSE_CODE_DICT[letter] + ' '
-        else:
-            # 1 space indicates different characters
-            # and 2 indicates different words
-            cipher += ' '
-
-    return cipher
-
-
-# Function to decrypt the string
-# from morse to english
-def decrypt(message):
-
-    # extra space added at the end to access the
-    # last morse code
-    message += ' '
-
-    decipher = ''
-    citext = ''
-
-    for letter in message:
-
-        # checks for space
-        if (letter != ' '):
-
-            # counter to keep track of space
-            i = 0
-
-            # storing morse code of a single character
-            citext += letter
-
-        # in case of space
-        else:
-            # if i = 1 that indicates a new character
-            i += 1
-
-            # if i = 2 that indicates a new word
-            if i == 2:
-
-                # adding space to separate words
-                decipher += ' '
-            else:
-
-                # accessing the keys using their values (reverse of encryption)
-                decipher += list(MORSE_CODE_DICT.keys())[list(
-                    MORSE_CODE_DICT.values()).index(citext)]
-                citext = ''
-
-    return decipher
 
 
 class cool_Feature(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-#rock paper scissors
 
-    @commands.command()
-    @commands.guild_only()
-    async def rps(self, ctx, arg):
-        possible_actions = ["rock", "paper", "scissors"]
-        computer_action = random.choice(possible_actions)
-        if arg in possible_actions:
-            await ctx.send(
-                f"\nYou chose {arg}, leafy chose {computer_action}.\n")
-            if arg == computer_action:
-                await ctx.send(f"Both players selected {arg}. It's a tie!")
-            elif arg == "rock":
-                if computer_action == "scissors":
-                    await ctx.send("Rock smashes scissors! You just fucky man."
-                                   )
-                else:
-                    await ctx.send("Paper covers rock! hahaha noov.")
-            elif arg == "paper":
-                if computer_action == "rock":
-                    await ctx.send(
-                        "Paper covers rock! WHAT? there is no next time doe")
-                else:
-                    await ctx.send("Scissors cuts paper! My name is nt.")
-            elif arg == "scissors":
-                if computer_action == "paper":
-                    await ctx.send(
-                        "Scissors cuts paper! What the fuck how could you win me?"
-                    )
-                else:
-                    await ctx.send(
-                        "Rock smashes scissors! Haha u just can't beat me NOOB."
-                    )
-            else:
-                await ctx.send("dude thats wrong syntax, fucking dumbass")
-
-#meme form reddit
-
-    @commands.command()
-    @commands.guild_only()
-    async def meme(self, ctx):
-        memes_submissions = reddit.subreddit('memes').hot()
-        post_to_pick = random.randint(1, 100)
-        for i in range(0, post_to_pick):
-            submission = next(x for x in memes_submissions if not x.stickied)
-            a = submission.url
-            b = submission.title
-        embed = discord.Embed(title=b, color=0x2B59B)
-        embed.set_image(url=a)
-        await ctx.send(embed=embed)
-
-#reddit image
-
-    @commands.command(name='reddit', aliases=['redi'])
-    @commands.guild_only()
-    async def reddit(self, ctx, *arg):
-        redimoment = ' '.join(arg)
-        redi_submissions = reddit.subreddit(str(redimoment)).hot()
-        post_to_pick = random.randint(1, 100)
-        for i in range(0, post_to_pick):
-            submission = next(x for x in redi_submissions if not x.stickied)
-            a = submission.url
-            b = submission.title
-        embed = discord.Embed(title=b, color=0xE38F8F)
-        embed.set_image(url=a)
-        await ctx.send(embed=embed)
 
 #tell quote
 
-    @commands.command(name='quote', aliases=['qo'])
+    @commands.command(name='quote')
     @commands.guild_only()
     async def quote_(self, ctx):
         response = requests.get("https://zenquotes.io/api/random")
@@ -242,7 +81,7 @@ class cool_Feature(commands.Cog):
 #spam
 
     @commands.command()
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.cooldown(1, 3, commands.BucketType.user)
     @commands.guild_only()
     async def spam(self, ctx, arg1, *arg2):
         a = ' '.join(arg2)
@@ -261,22 +100,21 @@ class cool_Feature(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def asks(self, ctx, *arg):
-        a = ' '.join(arg)
-        app_id = 'T8TJE5-6V67WHUAHT'
-        client = wolframalpha.Client(app_id)
-        res = client.query(a)
-        answer = next(res.results).text
+    async def asks(self, ctx, *,arg):
+      try:
+        res = client.query(arg)
+        answer = (next(res.results).text)
         await ctx.send(answer)
-
+      except:
+            await ctx.send("an error has occurred")
 #wikipedia
 
     @commands.command()
     @commands.guild_only()
-    async def wiki(self, ctx, arg):
+    async def wiki(self, ctx, *,arg):
         try:
             a = (wikipedia.summary(arg, sentences=1000))
-            embed = discord.Embed(title=arg, description=a[0:5900])
+            embed = discord.Embed(title=arg, description=a[0:5980])
             await ctx.send(embed=embed)
         except:
             await ctx.send("please more specific")
@@ -303,7 +141,7 @@ class cool_Feature(commands.Cog):
 
 #leafy quote
 
-    @commands.command()
+    @commands.command(name="leafyquote", aliases=["lq", "leafy_quote"])
     @commands.guild_only()
     async def leafy_quote(self, ctx):
         await ctx.send(random.choice(reply_bot.leafyquote) + "** -leafy**")
@@ -336,22 +174,6 @@ class cool_Feature(commands.Cog):
             lvl = users[str(id)]['level']
             await ctx.send(f'{member} has {lvl} social credits!')
 
-#morse decoder
-
-#encrypt
-
-    @commands.command()
-    @commands.guild_only()
-    async def encrypt(self, ctx, *, arg):
-        result = encrypt(arg.upper())
-        await ctx.send(result)
-
-    #decrypt
-    @commands.command()
-    @commands.guild_only()
-    async def decrypt(self, ctx, *, arg):
-        result = decrypt(arg)
-        await ctx.send(result)
 
 #QR generator(@Dart (1202))
 
@@ -453,7 +275,6 @@ class cool_Feature(commands.Cog):
                 except:
                     await ctx.send("no definiton for that")
 
-
 #8ball
 
     @commands.command(name='8ball')
@@ -463,6 +284,8 @@ class cool_Feature(commands.Cog):
         embed.add_field(name='Question: ', value=f'{question}', inline=True)
         embed.add_field(name='Answer: ', value=f'{response}', inline=False)
         await ctx.send(embed=embed)
+
+#gay meter
 
     @commands.command()
     @commands.guild_only()
@@ -475,7 +298,7 @@ class cool_Feature(commands.Cog):
                 "huh you think leby didnt expected this? I'm a chad and straighter than your mom's dacing pole"
             )
 
-        if user == ctx.author and user.id != 528225222525059102 :
+        if user == ctx.author and user.id != 528225222525059102:
             embed = discord.Embed(
                 title="Gay meter: ",
                 description=
@@ -488,16 +311,39 @@ class cool_Feature(commands.Cog):
                 f"He is {random.randrange(100)}% gay :gay_pride_flag:")
             await ctx.send(embed=embed)
 
+#penis size
+
     @commands.command()
     @commands.guild_only()
     async def penis(self, ctx, user: discord.Member = None):
         if user is None:
             user = ctx.author
         i = "8{}D".format("=" * random.randint(0, 30))
-        embed = discord.Embed(title="Penis size: ",description=i)
+        embed = discord.Embed(title="Penis size: ", description=i)
         if user.id == 528225222525059102:
-          embed = discord.Embed(title="Penis size: ",description="8{}D".format("=" * 48))
+            embed = discord.Embed(title="Penis size: ",
+                                  description="8{}D".format("=" * 48))
         await ctx.send(embed=embed)
+
+#emojify text
+
+    @commands.command()
+    @commands.guild_only()
+    async def emojify(self, ctx, *, text=None):
+        if text is None:
+            await ctx.send("please enter something")
+        emojis = []
+        for s in text:
+            if s.isdecimal():
+                emojis.append(f":{num2emo.get(s)}:")
+            elif s.isalpha():
+                emojis.append(f":regional_indicator_{s}:")
+            else:
+                emojis.append(s)
+        await ctx.send(''.join(emojis))
+
+
+#error
 
     @spam.error
     async def spam_error(self, ctx, error):

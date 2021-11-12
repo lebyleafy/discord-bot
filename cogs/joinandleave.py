@@ -97,6 +97,13 @@ class join_leave(commands.Cog):
                 embed.set_footer(text="We gonna miss you ")
                 await channel.send(embed=embed)
 
+    @commands.Cog.listener()
+    async def  on_guild_join(self, guild):
+        await guild.create_role(name="Government")
+        await guild.create_role(name="jailed")
+
+
+
 
 def setup(bot):
     bot.add_cog(join_leave(bot))

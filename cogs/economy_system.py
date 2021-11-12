@@ -9,6 +9,7 @@ import json
 import math
 from discord.ext.commands import cooldown, BucketType
 import time
+from discord.utils import get
 
 with open("bank.json", "ab+") as ab:
     ab.close()
@@ -55,6 +56,35 @@ async def update_bank(user, change=0, mode="Wallet"):
 class Economy(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+#jail
+
+    @commands.command()
+    @commands.has_role('Government')
+    @commands.guild_only()
+    async def jail(self, ctx, *, member: discord.Member = None):
+            if member is None:
+                await ctx.send("Enter user to jail")
+
+            role = get(member.guild.roles, name="jailed")
+            await member.add_roles(role)
+            await ctx.send(
+                f"Government jailed **{member}** for commiting crime")
+
+#relase
+
+    @commands.command()
+    @commands.has_role('Government')
+    @commands.guild_only()
+    async def release(self, ctx, member: discord.Member):
+            if member is None:
+                await ctx.send("Enter user to release")
+
+            role = get(member.guild.roles, name="jailed")
+            await member.remove_roles(role)
+            await ctx.send(
+                f"**{member}** has been released from jail, hope you become a good citizen"
+            )
+
 #withdraw money
 
     @commands.command(name="withdraw", aliases=["wd", 'widr'])
@@ -110,7 +140,7 @@ class Economy(commands.Cog):
 
             await ctx.send(f"deposited {amount}")
 
-    @commands.command(name="balance", aliases=["bal", "money"])
+    @commands.command(name="balance", aliases=["bal", "money", 'bank'])
     @commands.guild_only()
     async def balance(self, ctx):
         await open_account(ctx.author)
@@ -150,20 +180,28 @@ class Economy(commands.Cog):
     @commands.cooldown(1, 86400, commands.BucketType.user)
     @commands.guild_only()
     async def daily(self, ctx):
+
         await open_account(ctx.author)
 
         user = ctx.author
 
-        users = await get_bank_data()
+        role = discord.utils.find(lambda r: r.name == 'jailed',
+                                  ctx.message.guild.roles)
 
-        earnings = random.randrange(150, 300)
+        if role in user.roles:
+            await ctx.send(
+                "you are in jail! can't use this feature".format(user))
+        else:
+            users = await get_bank_data()
 
-        await ctx.send(f"You earned {earnings} from daily")
+            earnings = random.randrange(150, 300)
 
-        users[str(user.id)]["Wallet"] += earnings
+            await ctx.send(f"You earned {earnings} from daily")
 
-        with open("bank.json", 'w') as f:
-            json.dump(users, f)
+            users[str(user.id)]["Wallet"] += earnings
+
+            with open("bank.json", 'w') as f:
+                json.dump(users, f)
 
     @commands.command()
     @commands.cooldown(1, 604800, commands.BucketType.user)
@@ -173,16 +211,23 @@ class Economy(commands.Cog):
 
         user = ctx.author
 
-        users = await get_bank_data()
+        role = discord.utils.find(lambda r: r.name == 'jailed',
+                                  ctx.message.guild.roles)
 
-        earnings = random.randrange(888, 2222)
+        if role in user.roles:
+            await ctx.send(
+                "you are in jail! can't use this feature".format(user))
+        else:
+            users = await get_bank_data()
 
-        await ctx.send(f"You earned {earnings} from weekly")
+            earnings = random.randrange(888, 2222)
 
-        users[str(user.id)]["Wallet"] += earnings
+            await ctx.send(f"You earned {earnings} from weekly")
 
-        with open("bank.json", 'w') as f:
-            json.dump(users, f)
+            users[str(user.id)]["Wallet"] += earnings
+
+            with open("bank.json", 'w') as f:
+                json.dump(users, f)
 
     @commands.command()
     @commands.cooldown(1, 3600, commands.BucketType.user)
@@ -192,36 +237,52 @@ class Economy(commands.Cog):
 
         user = ctx.author
 
-        users = await get_bank_data()
+        role = discord.utils.find(lambda r: r.name == 'jailed',
+                                  ctx.message.guild.roles)
 
-        earnings = random.randrange(150)
+        if role in user.roles:
+            await ctx.send(
+                "you are in jail! can't use this feature".format(user))
+        else:
+            users = await get_bank_data()
 
-        await ctx.send(f"You earned {earnings} after hardworking")
+            earnings = random.randrange(150)
 
-        users[str(user.id)]["Wallet"] += earnings
+            await ctx.send(f"You earned {earnings} after hardworking")
 
-        with open("bank.json", 'w') as f:
-            json.dump(users, f)
+            users[str(user.id)]["Wallet"] += earnings
+
+            with open("bank.json", 'w') as f:
+                json.dump(users, f)
 
     @commands.command()
     @commands.cooldown(1, 43200, commands.BucketType.user)
     @commands.guild_only()
-    async def rob(self, ctx, member: discord.Member):
+    async def rob(self, ctx, member: discord.Member = None):
+        user = ctx.author
+
+        role = discord.utils.find(lambda r: r.name == 'jailed',
+                                  ctx.message.guild.roles)
+
         await open_account(ctx.author)
         await open_account(member)
 
-        bal = await update_bank(member)
+        if role in user.roles:
+            await ctx.send(
+                "you really tried to rob someone even you are in jail huh")
+        else:
+            bal = await update_bank(member)
 
-        if bal[0] < 100:
-            await ctx.send("not worth it man")
-            return
+            if bal[0] < 100:
+                await ctx.send("not worth it man")
+                return
 
-        earnings = random.randrange(0, bal[0])
+            earnings = random.randrange(0, bal[0])
 
-        await update_bank(ctx.author, earnings)
-        await update_bank(member, -1 * earnings)
+            await update_bank(ctx.author, earnings)
+            await update_bank(member, -1 * earnings)
 
-        await ctx.send(f"You robbed {earnings}")
+            await ctx.send(f"You robbed {earnings}")
 
     @commands.command()
     @commands.guild_only()
@@ -350,7 +411,10 @@ class Economy(commands.Cog):
             if m != "4" and m != "6" and m != "8" and m != "10" and m != "12" and m != "20":
                 await ctx.send("Sorry, invalid choice.")
                 return
-            await ctx.send(f"{b}")
+            coming = await ctx.send("Here it comes 🎲")
+            time.sleep(3)
+            await coming.delete()
+            await ctx.send(f"Dice stopped at: {b}")
 
             if b != c and b % 2 != 0:
                 await update_bank(ctx.author, -1 * amount)
@@ -451,58 +515,67 @@ class Economy(commands.Cog):
     async def work_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(
-                f'This command is on cooldown, you can use it in {round(error.retry_after/60, 2)} minutes'
-            )
+                f'This command is on cooldown, you can use it in {round(error.retry_after/60, 2)} minutes',
+                delete_after=20)
 
     @beg.error
     async def beg_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(
-                f'This command is on cooldown, you can use it in {round(error.retry_after/3600, 2)} hours'
-            )
+                f'This command is on cooldown, you can use it in {round(error.retry_after/3600, 2)} hours',
+                delete_after=20)
 
     @daily.error
     async def daily_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(
-                f'This command is on cooldown, you can use it in {round(error.retry_after/3600, 2)} hours'
-            )
+                f'This command is on cooldown, you can use it in {round(error.retry_after/3600, 2)} hours',
+                delete_after=20)
 
     @weekly.error
     async def weekly_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(
-                f'This command is on cooldown, you can use it in {round(error.retry_after/86400, 2)} days'
-            )
+                f'This command is on cooldown, you can use it in {round(error.retry_after/86400, 2)} days',
+                delete_after=20)
 
     @rob.error
     async def rob_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(
-                f'This command is on cooldown, you can use it in {round(error.retry_after/3600, 2)} hours'
-            )
+                f'This command is on cooldown, you can use it in {round(error.retry_after/3600, 2)} hours',
+                delete_after=20)
 
     @slots.error
     async def slots_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(
-                f'This command is on cooldown, you can use it in {round(error.retry_after, 2)} seconds'
-            )
+                f'This command is on cooldown, you can use it in {round(error.retry_after, 2)} seconds',
+                delete_after=20)
 
     @rolldice.error
     async def rolldice_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(
-                f'This command is on cooldown, you can use it in {round(error.retry_after, 2)} seconds'
-            )
+                f'This command is on cooldown, you can use it in {round(error.retry_after, 2)} seconds',
+                delete_after=20)
 
     @coin_flip.error
     async def coin_flip_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.send(
-                f'This command is on cooldown, you can use it in {round(error.retry_after, 2)} seconds'
-            )
+                f'This command is on cooldown, you can use it in {round(error.retry_after, 2)} seconds',
+                delete_after=20)
+
+    @jail.error
+    async def jail_error(self, ctx, error):
+            await ctx.send("IMPOSTER ALERT!!! YOU ARE NOT IN GOVERNMENT")
+
+    @release.error
+    async def release_error(self, ctx, error):
+            await ctx.send("IMPOSTER ALERT!!! YOU ARE NOT IN GOVERNMENT")
 
 
+            
 def setup(bot):
     bot.add_cog(Economy(bot))
